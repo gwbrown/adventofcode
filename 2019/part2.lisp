@@ -71,3 +71,20 @@
     (setf (aref parsed 1) arg1)
     (setf (aref parsed 2) arg2)
     (run-intcode-program parsed)))
+
+;; part 2
+
+;; the first argument increases the output by 460800 for each increment, see
+(eq (- (aref (run-with-args *aoc2p1* 12 0) 0)
+       (aref (run-with-args *aoc2p1* 11 0) 0))
+    460800)
+;; the second argument is just added to the result
+(eq (- (aref (run-with-args *aoc2p1* 12 5) 0)
+       (aref (run-with-args *aoc2p1* 12 1) 0))
+    4)
+;; each of these works off the base with args (0 0), minus the amount each increment the first arg
+;; controls
+(eq (- (aref (run-with-args *aoc2p1* 0 0) 0) 460800)
+    337108)
+
+(eq (aref (run-with-args *aoc2p1* 41 12) 0) 19690720)
