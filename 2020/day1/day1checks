@@ -1,0 +1,1 @@
+(:PCODE 1 (:HASH-TABLE 1 60 1.5 0.85 EQUALP NIL ((:SIMPLE-STRING 2 "Parse the given sample input") (:LIST 3 (:LIST 4 1456 675 299 366 979 1721)) (:SIMPLE-STRING 5 "Real input part 2") (:LIST 6 1019904) (:SIMPLE-STRING 7 "Given sample input, full stack") (:LIST 8 514579))))
