@@ -34,3 +34,31 @@
          (vertical (rest final-position)))
     (* horizontal vertical)))
 
+;; Part 2
+
+;; `state' is now a list of 3 values: `(HORIZONTAL VERTICAL AIM)'
+(defun exec-command-p2 (state command)
+  (let ((direction (first command))
+        (amount (second command))
+        (horizontal (first state))
+        (vertical (second state))
+        (aim (third state)))
+    (cond
+      ((eq 'forward direction)
+       (list (+ horizontal amount) (+ vertical (* amount aim)) aim))
+      ((eq 'down direction)
+       (list horizontal vertical (+ aim amount)))
+      ((eq 'up direction)
+       (list horizontal vertical (- aim amount))))))
+
+(defun exec-commands-p2 (commands &optional (state '(0 0 0)))
+  (reduce #'exec-command-p2 commands :initial-value state))
+
+(with-open-file (in #p"./day2sample.txt")
+  (exec-commands-p2 (read-commands in)))
+
+(with-open-file (in #p"./day2input.txt")
+  (let* ((final-position (exec-commands-p2 (read-commands in)))
+         (horizontal (first final-position))
+         (vertical (second final-position)))
+    (* horizontal vertical)))
