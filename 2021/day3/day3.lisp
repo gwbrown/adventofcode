@@ -43,6 +43,15 @@ Rust slice."
               :displaced-index-offset offset))
 
 (defun resolve-rating (type index)
+  "Resolves a single rating ('OXYGEN or 'CO2) using the appropriate
+rules for that rating type from the given prefix index. The prefix
+index is a hash table, with:
+Keys of type: (OR 'OXYGEN 'CO2)
+Values of type: (CONS FIXNUM (LIST STRING)))
+
+Where fixnum in the values is the number of values, and the list
+is the values themselves (the count is included so we don't have
+to traverse the list to find the length)"
   (loop :with type-test = (cond
                             ((eql 'oxygen type) #'<)
                             ((eql 'co2 type) #'>)
@@ -87,6 +96,8 @@ and retuns them in the form '(OXY-RATING CO2-RATING)"
     ;; Now loop from 0 to LINE-LENGTH, checking each bit as we go
     (cons (resolve-rating 'oxygen index)
           (resolve-rating 'co2 index))))
+
+;; Run these in the REPL
 
 (with-open-file (in #p"./day3input.txt")
   (let ((rates (calc-rates (read-diagnostic-lines in))))
