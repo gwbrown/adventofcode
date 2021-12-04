@@ -23,8 +23,6 @@ lines. Returned in the format '(GAMMA EPSILON)"
           (gamma 0)
           (epsilon 0))
       (dotimes (i line-length)
-        (break "counts: [~a], position: [~a], count: [~a], threshold: [~a], g: [~a], e: [~a]"
-               counts i (aref counts i) majority-threshold gamma epsilon)
         (let ((bytespec (byte 1 (- (1- line-length) i))))
           (if (< majority-threshold (aref counts i))
               (progn
@@ -43,28 +41,6 @@ Rust slice."
               :element-type 'character
               :displaced-to source-string
               :displaced-index-offset offset))
-
-(defun find-prefixed-val (prefix-source index)
-  "Finds the single value (or NIL) with the longest prefix that matches
-the longest prefix of `prefix-source' that it can find in `index'."
-  (loop :with line-length = (length prefix-source)
-        :for prefix-length :from (1- line-length) :downto 0
-        :for current-prefix = (substring prefix-length prefix-source)
-          :then (substring prefix-length prefix-source)
-        :until (gethash current-prefix index)
-        :finally (first (gethash current-prefix index))))
-
-(defun calculate-counts (lines)
-  "Calculates the counts of each bit in a given set of diagnostic lines."
-  (let* ((line-count 0)
-         (line-length (length (first lines)))
-         (counts (make-array line-length :element-type 'fixnum)))
-    (dolist (line lines)
-      (incf line-count)
-      (dotimes (i line-length)
-        (when (eql #\1 (aref line i))
-          (incf (aref counts i)))))
-    counts))
 
 (defun resolve-rating (type index)
   (loop :with type-test = (cond
