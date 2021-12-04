@@ -66,7 +66,7 @@ the longest prefix of `prefix-source' that it can find in `index'."
           (incf (aref counts i)))))
     counts))
 
-(defun resolve-rating (type index line-length)
+(defun resolve-rating (type index)
   (loop :with type-test = (cond
                             ((eql 'oxygen type) #'<)
                             ((eql 'co2 type) #'>)
@@ -109,8 +109,8 @@ and retuns them in the form '(OXY-RATING CO2-RATING)"
              index)
     ;; (break)
     ;; Now loop from 0 to LINE-LENGTH, checking each bit as we go
-    (cons (resolve-rating 'oxygen index line-length)
-          (resolve-rating 'co2 index line-length))))
+    (cons (resolve-rating 'oxygen index)
+          (resolve-rating 'co2 index))))
 
 (with-open-file (in #p"./day3input.txt")
   (let ((rates (calc-rates (read-diagnostic-lines in))))
