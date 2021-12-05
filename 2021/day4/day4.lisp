@@ -36,17 +36,45 @@
         :thereis (or (check-col board i numbers)
                     (check-row board i numbers))))
 
-(defun play-bingo (boards numbers)
-  (loop :for i :from 5 :to (1- (length numbers))
+;; It's almost luck that we only need to return the full list
+;; of called numbers, rather than including it with each winning
+;; board (which you'd need if you wanted to score every board)
+(defun play-bingo (boards numbers &optional (win-count 1))
+  "Simulates a game of bingo with the given board. Checks numebrs in
+the given sequence until `win-count' boards have won (or until all
+boards have won if `NIL' is given)."
+  (loop ;;:with winning-boards = '()
+        :with board-count = (length boards)
+        :for boards-in-play = boards
+          :then (remove-if
+                 (lambda (item) (member item winning-boards))
+                 boards-in-play)
+        :for i :from 5 :to (1- (length numbers))
         :for current-numbers = (subseq numbers 0 i)
-            :then (subseq numbers 0 i)
-        :for winning-boards = (remove-if-not (lambda (b)
-                                                 (check-board b current-numbers))
-                                               boards)
-            :then (remove-if-not (lambda (b) (check-board b current-numbers)) boards)
-        ;; :do (break)
-        :until winning-boards
+          :then (subseq numbers 0 i)
+        :for wins-this-round = (remove-if-not (lambda (b)
+                                                (check-board b current-numbers))
+                                              boards-in-play)
+          :then (remove-if-not
+                 (lambda (b) (check-board b current-numbers))
+                 boards-in-play)
+        :when wins-this-round
+          :append wins-this-round :into winning-boards
+        ;; :do (when wins-this-round (break))
+        :until (let ((wins (length winning-boards)))
+                 (or (eql win-count wins)
+                     (eql board-count wins)))
         :finally (return (values winning-boards current-numbers))))
+
+(defun score-board (board numbers-called)
+  "Determines the score for a board given the board and the list
+of numbers called before it won."
+  (loop :for square :from 0 :to (1- (array-total-size board))
+        :for square-val = (row-major-aref board square)
+          :then (row-major-aref board square)
+        :when (not (member square-val numbers-called))
+          :sum square-val :into unmarked-total
+        :finally (return (* unmarked-total (first (last numbers-called))))))
 
 (with-open-file (in #p"./day4input.txt")
   (let* ((numbers-line (read-line in))
@@ -56,11 +84,6 @@
         ((null board) boards)
       (push board boards))
     (multiple-value-bind (winning-boards numbers-called)
-        (play-bingo boards numbers)
-      (loop :with board = (first winning-boards)
-            :for square :from 0 :to (1- (array-total-size board))
-            :for square-val = (row-major-aref board square)
-              :then (row-major-aref board square)
-            :when (not (member square-val numbers-called))
-              :sum square-val :into unmarked-total
-            :finally (return (* unmarked-total (first (last numbers-called))))))))
+        (play-bingo boards numbers nil)
+      (cons (score-board (first (last winning-boards)) numbers-called)
+            (first (last winning-boards))))))
