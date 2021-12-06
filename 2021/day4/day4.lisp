@@ -46,12 +46,14 @@ boards have won if `NIL' is given)."
   (loop ;;:with winning-boards = '()
         :with board-count = (length boards)
         :for boards-in-play = boards
-          :then (remove-if
+          :then (delete-if
                  (lambda (item) (member item winning-boards))
                  boards-in-play)
-        :for i :from 5 :to (1- (length numbers))
-        :for current-numbers = (subseq numbers 0 i)
-          :then (subseq numbers 0 i)
+        ;; :for i :from 5 :to (1- (length numbers))
+        :for remaining-numbers = (nthcdr 4 numbers)
+          :then (rest remaining-numbers)
+        :for current-numbers = (nreverse (subseq numbers 0 5))
+          :then (cons (first remaining-numbers) current-numbers)
         :for wins-this-round = (remove-if-not (lambda (b)
                                                 (check-board b current-numbers))
                                               boards-in-play)
@@ -64,7 +66,7 @@ boards have won if `NIL' is given)."
         :until (let ((wins (length winning-boards)))
                  (or (eql win-count wins)
                      (eql board-count wins)))
-        :finally (return (values winning-boards current-numbers))))
+        :finally (return (values winning-boards (nreverse current-numbers)))))
 
 (defun score-board (board numbers-called)
   "Determines the score for a board given the board and the list
