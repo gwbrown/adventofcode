@@ -54,7 +54,40 @@ and whether this fish reproduced this day as the second value."
       (setf fishes (fast-update-fishes fishes)))
     fishes))
 
-(with-open-file (in #p"./input.txt")
-  (let* ((fishes (read-fishes in))
-         (final-fishes (time (simulate-fishes fishes 120))))
-    (cons (length final-fishes) final-fishes)))
+(defun run-part-one ()
+  (with-open-file (in #p"./input.txt")
+    (let* ((fishes (read-fishes in))
+           (final-fishes (time (simulate-fishes fishes 80))))
+      (cons (length final-fishes) final-fishes))))
+
+
+;; It has become clear that the old ways are no longer sufficient. We can do better.
+
+(defun group-fishes (fishes)
+  "Takes a list of fishes and transforms it into a list of groups, where each group's value
+is the number of fish in that group. The head of the list is the fish with a timer of 0,
+the second is the fish with a timer of 1, and so on."
+  (let ((groups (make-list 9 :initial-element 0)))
+    (dolist (fish fishes)
+      (incf (first (nthcdr fish groups))))
+    groups))
+
+(defun step-groups (groups)
+  "Takes a list of groups and destructively processes it, returning a new list of
+groups that represents the state of the (lanternfish) world after one day."
+  (let* ((fish-that-bred (pop groups)))
+    (incf (first (nthcdr 6 groups)) fish-that-bred) ;; The fish that bred today will do so again in 6 days
+    (nconc groups (list fish-that-bred)))) ;; The fish that were created today go in the 8th slot
+
+(defun simulate-fish-groups (fishes days)
+  "Simulates `days' worth of fish reproduction, using groups"
+  (let ((groups (group-fishes fishes)))
+    (dotimes (i days)
+      (setf groups (step-groups groups)))
+    groups))
+
+(defun run-part-two (days)
+  (with-open-file (in #p"./input.txt")
+    (let* ((fishes (read-fishes in))
+           (final-fishes (time (simulate-fish-groups fishes days))))
+      (values (apply #'+ final-fishes) final-fishes))))
