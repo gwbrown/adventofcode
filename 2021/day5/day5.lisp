@@ -37,18 +37,25 @@
           :do (incf (aref map y x))))
   map)
 
+(defun apply-diagonal-line (x1 y1 x2 y2 map)
+  (let ((x-step (if (> x2 x1) 1 -1))
+        (y-step (if (> y2 y1) 1 -1)))
+    (do ((x x1 (+ x x-step))
+         (y y1 (+ y y-step)))
+        ((or (= y (+ y2 y-step)) (= x (+ x2 x-step))) map)
+      (incf (aref map y x)))))
+
 (defun apply-line (line-descriptor map)
   (destructuring-bind ((x1 . y1) (x2 . y2)) line-descriptor
     (let ((x-diff (- x2 x1))
-          (y-diff (- y2 y1))
-          (diagonals '()))
+          (y-diff (- y2 y1)))
       (cond
         ((= 0 x-diff) (apply-y-only-line x1 y1 y2 map))
         ((= 0 y-diff) (apply-x-only-line y1 x1 x2 map))
-        (t (push line-descriptor diagonals)))))
+        (t (apply-diagonal-line x1 y1 x2 y2 map)))))
   map)
 
-(defun solve-part-1 ()
+(defun solve-part-2 ()
   (let ((lines (read-line-descriptors #p"./input.txt"))
         (map (make-array '(1000 1000) :initial-element 0 :element-type 'fixnum)))
     (loop :for line :in lines
