@@ -42,3 +42,26 @@
            (optimal-target (min-by (lambda (target) (calculate-fuel-for positions target)) possible-targets)))
       ;; (break)
       (values (calculate-fuel-for positions optimal-target) optimal-target))))
+
+(defun fib (n)
+  (cond
+    ((>= 0 n) 0)
+    ((= 1 n)  1)
+    (t (+ n (fib (1- n))))))
+
+(defun nl-fuel-to-move (position target)
+  "Calculates fuel to move with the nonlinear method"
+  (fib (fuel-to-move position target)))
+
+(defun nl-calculate-fuel-for (positions target)
+  (flet ((fuel (position) (nl-fuel-to-move target position)))
+    (apply #'+ (mapcar #'fuel positions))))
+
+(defun solve-part-2 () 
+  (with-open-file (in #p"./input.txt")
+    (let* ((positions (read-numbers-line (read-line in)))
+           (possible-targets (range (apply #'min positions) (apply #'max positions)))
+           ;; (fuels (mapcar (lambda (tgt) (nl-calculate-fuel-for positions tgt)) possible-targets))
+           (optimal-target (time (min-by (lambda (target) (nl-calculate-fuel-for positions target)) possible-targets))))
+      (break)
+      (values (nl-calculate-fuel-for positions optimal-target) optimal-target))))
