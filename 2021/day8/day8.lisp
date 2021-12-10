@@ -89,12 +89,7 @@ Example: (normalize-symbol 'decba) => 'ABCDE"
                                (not (eq nine digit))
                                (= 0 (length (set-difference five-letters digit-letters))))))
                       digits)
-           (member-if (lambda (digit)
-                        (let ((digit-letters (letterify-digit digit)))
-                          (and (= 6 (length digit-letters))
-                               (not (eq nine digit))
-                               (= 0 (length (set-difference five-letters digit-letters))))))
-                      digits))))
+           )))
 
 (defun find-nine (digits three)
   (let* ((three-letters (letterify-digit three)))
